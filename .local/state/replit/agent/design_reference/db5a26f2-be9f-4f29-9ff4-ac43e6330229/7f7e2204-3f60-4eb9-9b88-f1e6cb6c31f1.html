@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Rescreening System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'ui-sans-serif', 'system-ui']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-slate-50 font-sans">
+    <!-- @COMPONENT: App [Main application container with routing] -->
+    <div id="app" class="min-h-screen">
+        
+        <!-- Progress Indicator -->
+        <!-- @COMPONENT: ProgressIndicator [shows current step in workflow] -->
+        <div class="bg-white border-b border-slate-200 px-4 py-3">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-xl font-bold text-slate-800">Laptop Rescreening System</h1>
+                    <div class="flex items-center space-x-2 text-sm text-slate-600" data-bind="currentStep">
+                        <span class="px-2 py-1 bg-primary-100 text-primary-700 rounded-md font-medium">Step 1 of 5</span>
+                    </div>
+                </div>
+                <!-- Progress Bar -->
+                <div class="mt-3">
+                    <div class="w-full bg-slate-200 rounded-full h-2">
+                        <div class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 20%" data-bind="progressWidth"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ProgressIndicator -->
+
+        <main class="max-w-4xl mx-auto px-4 py-8">
+            
+            <!-- HOME PAGE (/) -->
+            <!-- @COMPONENT: HomePage [Initial scanner input page] -->
+            <div id="home-page" class="space-y-8">
+                <div class="text-center">
+                    <div class="max-w-lg mx-auto">
+                        <!-- High-quality barcode scanner image with modern industrial look -->
+                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600" 
+                             alt="Professional barcode scanner device" 
+                             class="w-full h-64 object-cover rounded-xl shadow-lg mb-6" 
+                             data-mock-image="true" />
+                        
+                        <h2 class="text-3xl font-bold text-slate-800 mb-4">Scan CrNo to Start Rescreening</h2>
+                        <p class="text-lg text-slate-600 mb-8">Enter or scan the CrNo to begin the laptop rescreening process</p>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                            <label for="crno-input" class="block text-sm font-medium text-slate-700 mb-2">CrNo</label>
+                            <input 
+                                type="text" 
+                                id="crno-input"
+                                placeholder="Enter CrNo or use scanner..."
+                                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg"
+                                data-event="input:autoNavigateToQ1"
+                                data-bind="crNoValue"
+                                data-mock="true" />
+                            <p class="text-sm text-slate-500 mt-2">Auto-navigation will occur when CrNo is entered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: HomePage -->
+
+            <!-- Q1 PAGE (/q1) -->
+            <!-- @COMPONENT: Q1Page [Device change assessment] -->
+            <div id="q1-page" class="space-y-8" style="display: none;">
+                <div class="grid lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <!-- Modern laptop in professional setting -->
+                        <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600" 
+                             alt="Modern laptop computer on desk" 
+                             class="w-full h-80 object-cover rounded-xl shadow-lg" 
+                             data-mock-image="true" />
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Question 1</h2>
+                            <p class="text-xl text-slate-700 mb-6">Does the device need to be changed?</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button 
+                                class="flex-1 bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectYes"
+                                data-implementation="Show device form fields when clicked">
+                                Yes
+                            </button>
+                            <button 
+                                class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:bg-slate-300 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectNo"
+                                data-implementation="Navigate to Q2 when clicked">
+                                No
+                            </button>
+                        </div>
+                        
+                        <!-- Conditional Device Form -->
+                        <!-- @STATE: showDeviceForm:boolean = false -->
+                        <div id="device-form" class="bg-white p-6 rounded-xl shadow-md border border-slate-200 space-y-4" style="display: none;" data-bind="showDeviceForm">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Device Information</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Brand</label>
+                                    <input type="text" placeholder="e.g., Dell, HP, Lenovo" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="deviceBrand" data-mock="true" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Model</label>
+                                    <input type="text" placeholder="e.g., Latitude 5520" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="deviceModel" data-mock="true" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">IMEI</label>
+                                    <input type="text" placeholder="15-digit IMEI number" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="deviceIMEI" data-mock="true" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Serial Number</label>
+                                    <input type="text" placeholder="Device serial number" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="deviceSerial" data-mock="true" />
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Specification</label>
+                                <textarea placeholder="Enter device specifications..." rows="3"
+                                          class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                          data-bind="deviceSpecs" data-mock="true"></textarea>
+                            </div>
+                            
+                            <button 
+                                class="w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:submitDeviceForm"
+                                data-implementation="Validate form and navigate to Q2">
+                                Continue to Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Q1Page -->
+
+            <!-- Q2 PAGE (/q2) -->
+            <!-- @COMPONENT: Q2Page [Cosmetics assessment] -->
+            <div id="q2-page" class="space-y-8" style="display: none;">
+                <div class="grid lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <!-- Laptop repair/cosmetics scene -->
+                        <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600" 
+                             alt="Laptop repair and maintenance tools" 
+                             class="w-full h-80 object-cover rounded-xl shadow-lg" 
+                             data-mock-image="true" />
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Question 2</h2>
+                            <p class="text-xl text-slate-700 mb-6">Does the cosmetics need to be changed?</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button 
+                                class="flex-1 bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectYesCosmetics"
+                                data-implementation="Show cosmetics questions when clicked">
+                                Yes
+                            </button>
+                            <button 
+                                class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:bg-slate-300 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectNoCosmetics"
+                                data-implementation="Navigate to Q3 when clicked">
+                                No
+                            </button>
+                        </div>
+                        
+                        <!-- Conditional Cosmetics Card -->
+                        <!-- @STATE: showCosmeticsQuestions:boolean = false -->
+                        <div id="cosmetics-card" class="bg-white p-8 rounded-xl shadow-md border border-slate-200 text-center" style="display: none;" data-bind="showCosmeticsQuestions">
+                            <div class="text-6xl mb-4">🔧</div>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-3">COSMETICS QUESTIONS</h3>
+                            <p class="text-slate-600 mb-6">Detailed cosmetics assessment questions will be implemented here</p>
+                            <div class="bg-slate-100 p-4 rounded-lg">
+                                <p class="text-sm text-slate-500"><!-- @FUNCTIONALITY: Implement cosmetics-specific questions and evaluation criteria --></p>
+                            </div>
+                            <button 
+                                class="mt-6 w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:completeCosmeticsQuestions"
+                                data-implementation="Navigate to Q3 after cosmetics assessment">
+                                Continue to Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Q2Page -->
+
+            <!-- Q3 PAGE (/q3) -->
+            <!-- @COMPONENT: Q3Page [Functions assessment] -->
+            <div id="q3-page" class="space-y-8" style="display: none;">
+                <div class="grid lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <!-- Electronics testing and repair -->
+                        <img src="https://pixabay.com/get/g53bebc20e77d1f7de3003253fcaa1aab31ec96f56bf74458a0438074ae48f73e934a77ef9f335c558ea0f6f87ba7a0a296010f1aa77bcb6f21c1f2a4bf873b73_1280.jpg" 
+                             alt="Electronic circuit board and testing equipment" 
+                             class="w-full h-80 object-cover rounded-xl shadow-lg" 
+                             data-mock-image="true" />
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Question 3</h2>
+                            <p class="text-xl text-slate-700 mb-6">Does the functions need to be changed?</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button 
+                                class="flex-1 bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectYesFunctions"
+                                data-implementation="Show function questions when clicked">
+                                Yes
+                            </button>
+                            <button 
+                                class="flex-1 bg-slate-200 text-slate-700 px-6 py-3 rounded-lg font-semibold hover:bg-slate-300 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectNoFunctions"
+                                data-implementation="Navigate to Q4 when clicked">
+                                No
+                            </button>
+                        </div>
+                        
+                        <!-- Conditional Function Card -->
+                        <!-- @STATE: showFunctionQuestions:boolean = false -->
+                        <div id="function-card" class="bg-white p-8 rounded-xl shadow-md border border-slate-200 text-center" style="display: none;" data-bind="showFunctionQuestions">
+                            <div class="text-6xl mb-4">⚙️</div>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-3">FUNCTION QUESTIONS</h3>
+                            <p class="text-slate-600 mb-6">Detailed functionality testing questions will be implemented here</p>
+                            <div class="bg-slate-100 p-4 rounded-lg">
+                                <p class="text-sm text-slate-500"><!-- @FUNCTIONALITY: Implement function-specific testing criteria and evaluation questions --></p>
+                            </div>
+                            <button 
+                                class="mt-6 w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:completeFunctionQuestions"
+                                data-implementation="Navigate to Q4 after function assessment">
+                                Continue to Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Q3Page -->
+
+            <!-- Q4 PAGE (/q4) -->
+            <!-- @COMPONENT: Q4Page [FMI check and final results] -->
+            <div id="q4-page" class="space-y-8" style="display: none;">
+                <div class="grid lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <!-- Security alert/warning themed image -->
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600" 
+                             alt="Security warning alert symbol" 
+                             class="w-full h-80 object-cover rounded-xl shadow-lg" 
+                             data-mock-image="true" />
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Question 4</h2>
+                            <p class="text-xl text-slate-700 mb-6">Does the unit have FMI?</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button 
+                                class="flex-1 bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectYesFMI"
+                                data-implementation="Show quarantine message when clicked">
+                                Yes
+                            </button>
+                            <button 
+                                class="flex-1 bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors"
+                                data-event="click:selectNoFMI"
+                                data-implementation="Show screening complete message when clicked">
+                                No
+                            </button>
+                        </div>
+                        
+                        <!-- Conditional Result Cards -->
+                        <!-- @STATE: showResults:boolean = false -->
+                        
+                        <!-- Quarantine Result -->
+                        <div id="quarantine-result" class="bg-amber-50 border border-amber-200 p-6 rounded-xl" style="display: none;" data-bind="showQuarantineResult">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-3xl">⚠️</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-amber-800">QUARANTINE Required</h3>
+                                    <p class="text-amber-700 mt-1">Contact Customer immediately</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 bg-amber-100 p-4 rounded-lg">
+                                <p class="text-sm text-amber-800">This device requires special handling due to FMI detection. Please follow quarantine protocols.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Complete Result -->
+                        <div id="complete-result" class="bg-emerald-50 border border-emerald-200 p-6 rounded-xl" style="display: none;" data-bind="showCompleteResult">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-3xl">✅</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-emerald-800">Screening Complete</h3>
+                                    <p class="text-emerald-700 mt-1">Device has passed all checks</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 bg-emerald-100 p-4 rounded-lg">
+                                <p class="text-sm text-emerald-800">All rescreening criteria have been met. The device is ready for processing.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Saved Notification -->
+                <!-- @STATE: showSavedMessage:boolean = false -->
+                <div id="saved-notification" class="fixed bottom-4 right-4 bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-lg" style="display: none;" data-bind="showSavedMessage">
+                    <div class="flex items-center space-x-2">
+                        <div class="text-xl">💾</div>
+                        <span class="font-medium">Data saved successfully</span>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: Q4Page -->
+
+            <!-- ADMIN PANEL (/admin) -->
+            <!-- @COMPONENT: AdminPanel [Administrative interface with authentication] -->
+            <div id="admin-page" class="space-y-8" style="display: none;">
+                <!-- Login Form -->
+                <!-- @STATE: isAuthenticated:boolean = false -->
+                <div id="admin-login" class="max-w-md mx-auto" data-bind="showLogin">
+                    <div class="bg-white p-8 rounded-xl shadow-md border border-slate-200">
+                        <div class="text-center mb-6">
+                            <!-- Professional admin/security themed image -->
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=300" 
+                                 alt="Professional admin interface" 
+                                 class="w-full h-48 object-cover rounded-lg mb-4" 
+                                 data-mock-image="true" />
+                            <h2 class="text-2xl font-bold text-slate-800">Admin Panel</h2>
+                            <p class="text-slate-600 mt-2">Enter credentials to access admin settings</p>
+                        </div>
+                        
+                        <form class="space-y-4" data-event="submit:authenticateAdmin">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+                                <input type="text" placeholder="admin" 
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                       data-bind="adminUsername" data-mock="true" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                                <input type="password" placeholder="admin" 
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                       data-bind="adminPassword" data-mock="true" />
+                            </div>
+                            <button type="submit" 
+                                    class="w-full bg-slate-800 text-white px-4 py-2 rounded-md font-semibold hover:bg-slate-900 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                                    data-implementation="Validate credentials (admin/admin) and show admin interface">
+                                Sign In
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Admin Interface -->
+                <div id="admin-interface" class="space-y-6" style="display: none;" data-bind="showAdminInterface">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-6">Admin Configuration</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Questions Configuration -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold text-slate-700">Questions</h3>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Q1: Device Change</label>
+                                    <input type="text" value="Does the device need to be changed?" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="q1Text" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Q2: Cosmetics</label>
+                                    <input type="text" value="Does the cosmetics need to be changed?" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="q2Text" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Q3: Functions</label>
+                                    <input type="text" value="Does the functions need to be changed?" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="q3Text" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Q4: FMI Check</label>
+                                    <input type="text" value="Does the unit have FMI?" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="q4Text" data-mock="true" />
+                                </div>
+                            </div>
+                            
+                            <!-- Images Configuration -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-semibold text-slate-700">Images</h3>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Scanner Image URL</label>
+                                    <input type="url" value="https://source.unsplash.com/featured/?scanner" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="scannerImageUrl" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Laptop Image URL</label>
+                                    <input type="url" value="https://source.unsplash.com/featured/?laptop" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="laptopImageUrl" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Repair Image URL</label>
+                                    <input type="url" value="https://source.unsplash.com/featured/?repair" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="repairImageUrl" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Electronics Image URL</label>
+                                    <input type="url" value="https://source.unsplash.com/featured/?electronics" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="electronicsImageUrl" data-mock="true" />
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Alert Image URL</label>
+                                    <input type="url" value="https://source.unsplash.com/featured/?alert" 
+                                           class="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                           data-bind="alertImageUrl" data-mock="true" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end space-x-4">
+                            <button class="px-6 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                                    data-event="click:resetToDefaults"
+                                    data-implementation="Reset all settings to default values">
+                                Reset to Defaults
+                            </button>
+                            <button class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                                    data-event="click:saveAdminSettings"
+                                    data-implementation="Save all admin configuration changes">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: AdminPanel -->
+            
+        </main>
+        
+        <!-- Navigation Controls -->
+        <div class="fixed bottom-4 left-4 flex space-x-2">
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('home-page')" data-implementation="React Router navigation">Home</button>
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('q1-page')" data-implementation="React Router navigation">Q1</button>
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('q2-page')" data-implementation="React Router navigation">Q2</button>
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('q3-page')" data-implementation="React Router navigation">Q3</button>
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('q4-page')" data-implementation="React Router navigation">Q4</button>
+            <button class="bg-white text-slate-700 px-3 py-2 rounded-md shadow-md text-sm hover:bg-slate-50" 
+                    onclick="showPage('admin-page')" data-implementation="React Router navigation">Admin</button>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: App -->
+    
+    <script>
+        // TODO: Implement React Router for navigation, Context API for state management
+        
+        (function() {
+            // Demo navigation for mockup purposes
+            function showPage(pageId) {
+                // Hide all pages
+                const pages = ['home-page', 'q1-page', 'q2-page', 'q3-page', 'q4-page', 'admin-page'];
+                pages.forEach(id => {
+                    document.getElementById(id).style.display = 'none';
+                });
+                
+                // Show selected page
+                document.getElementById(pageId).style.display = 'block';
+                
+                // Update progress based on current page
+                updateProgress(pageId);
+            }
+            
+            function updateProgress(pageId) {
+                const progressSteps = {
+                    'home-page': { step: 1, width: '20%' },
+                    'q1-page': { step: 2, width: '40%' },
+                    'q2-page': { step: 3, width: '60%' },
+                    'q3-page': { step: 4, width: '80%' },
+                    'q4-page': { step: 5, width: '100%' },
+                    'admin-page': { step: 'Admin', width: '100%' }
+                };
+                
+                const progress = progressSteps[pageId];
+                if (progress) {
+                    document.querySelector('[data-bind="currentStep"]').innerHTML = 
+                        `<span class="px-2 py-1 bg-primary-100 text-primary-700 rounded-md font-medium">Step ${progress.step} of 5</span>`;
+                    document.querySelector('[data-bind="progressWidth"]').style.width = progress.width;
+                }
+            }
+            
+            // Initialize demo interactions
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('[data-event*="selectYes"]') && e.target.closest('#q1-page')) {
+                    document.getElementById('device-form').style.display = 'block';
+                }
+                
+                if (e.target.matches('[data-event*="selectYesCosmetics"]') && e.target.closest('#q2-page')) {
+                    document.getElementById('cosmetics-card').style.display = 'block';
+                }
+                
+                if (e.target.matches('[data-event*="selectYesFunctions"]') && e.target.closest('#q3-page')) {
+                    document.getElementById('function-card').style.display = 'block';
+                }
+                
+                if (e.target.matches('[data-event*="selectYesFMI"]') && e.target.closest('#q4-page')) {
+                    document.getElementById('quarantine-result').style.display = 'block';
+                    showSavedNotification();
+                }
+                
+                if (e.target.matches('[data-event*="selectNoFMI"]') && e.target.closest('#q4-page')) {
+                    document.getElementById('complete-result').style.display = 'block';
+                    showSavedNotification();
+                }
+            });
+            
+            function showSavedNotification() {
+                const notification = document.getElementById('saved-notification');
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Admin login demo
+            document.addEventListener('submit', function(e) {
+                if (e.target.matches('[data-event*="authenticateAdmin"]')) {
+                    e.preventDefault();
+                    // Simple demo authentication
+                    document.getElementById('admin-login').style.display = 'none';
+                    document.getElementById('admin-interface').style.display = 'block';
+                }
+            });
+            
+            // Auto-navigation from home page
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('[data-event*="autoNavigateToQ1"]')) {
+                    if (e.target.value.length > 0) {
+                        setTimeout(() => showPage('q1-page'), 1000); // Demo delay
+                    }
+                }
+            });
+            
+            // Make showPage globally available for navigation buttons
+            window.showPage = showPage;
+            
+            // Initialize first page
+            showPage('home-page');
+        })();
+    </script>
+</body>
+</html>
